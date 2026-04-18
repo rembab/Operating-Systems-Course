@@ -1,8 +1,6 @@
 #include <bits/types/sigset_t.h>
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -29,21 +27,27 @@ void handler(int sig_no) {
          "numbered %d!\n",
          sig_no);
 }
+
 void sig_handle() { signal(SIGUSR1, handler); }
 
-int main(int argc, char *argv[]) {
-  if (argc < 2)
-    exit(0);
-  if (strcmp(argv[1], "default") == 0)
+void set_sig1_reaction(int reaction) {
+  if (reaction == 0)
     sig_default();
-  if (strcmp(argv[1], "ignore") == 0)
+  if (reaction == 1)
     sig_ignore();
-  if (strcmp(argv[1], "mask") == 0)
+  if (reaction == 2)
     sig_mask();
-  if (strcmp(argv[1], "handle") == 0)
+  if (reaction == 3)
     sig_handle();
+}
 
-  printf("I am beggining loop de loop\n");
+int main(int argc, char *argv[]) {
+
+  signal(SIGUSR2, set_sig1_reaction);
+
+  printf("I am beggining loop de loop in the child process of pid: %d\n",
+         getpid());
+
   for (int i = 0; i < 20; i++) {
     printf("%d\n", i);
     if (i == 5 || i == 15) {
@@ -59,6 +63,7 @@ int main(int argc, char *argv[]) {
         sig_unblock();
       }
     }
+    sleep(1);
   }
   return 0;
 }
