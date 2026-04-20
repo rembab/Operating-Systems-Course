@@ -21,19 +21,18 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[1], "handle") == 0)
     reaction = 3;
 
-  printf("Launching child, desired reaction id: %d\n", reaction);
-
   int fork_result = fork();
   if (fork_result == 0) {
-    printf("meow\n");
-    write(1, "meow\n", 6);
-    fflush(stdout);
-    // execl("./child", "child");
+    execl("./child", "child", NULL);
   } else {
-    printf("woof\n");
     union sigval val;
     val.sival_int = reaction;
+    printf("Proces macierzysty %d\n", getpid());
+    printf("Uruchamiam proces potomny o id: %d\n", fork_result);
+    printf("Oczekiwane id reakcji: %d\n", reaction);
+    sleep(1);
     sigqueue(fork_result, SIGUSR2, val);
+    sleep(19);
   }
   return 0;
 }

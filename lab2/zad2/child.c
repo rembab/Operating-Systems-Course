@@ -1,3 +1,4 @@
+#include <bits/types/siginfo_t.h>
 #include <bits/types/sigset_t.h>
 #include <signal.h>
 #include <stdio.h>
@@ -20,17 +21,16 @@ void sig_unblock() {
   sigemptyset(&msk);
   sigaddset(&msk, SIGUSR1);
   sigset_t old;
-  sigprocmask(SIG_BLOCK, &msk, &old);
+  sigprocmask(SIG_UNBLOCK, &msk, &old);
 }
 void handler(int sig_no) {
-  printf("A signal? In my process? How peculiar! Moreover tis would seem it is "
-         "numbered %d!\n",
-         sig_no);
+  printf("Wywołano handler dla sygnału %d\n", sig_no);
 }
 
 void sig_handle() { signal(SIGUSR1, handler); }
 
-void set_sig1_reaction(int reaction) {
+void set_sig1_reaction(int sig, siginfo_t *info, void *ucontext) {
+  int reaction = info->si_value.sival_int;
   if (reaction == 0)
     sig_default();
   if (reaction == 1)
@@ -42,28 +42,30 @@ void set_sig1_reaction(int reaction) {
 }
 
 int main(int argc, char *argv[]) {
+  struct sigaction act;
+  act.sa_sigaction = set_sig1_reaction;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_SIGINFO;
+  sigaction(SIGUSR2, &act, NULL);
 
-  signal(SIGUSR2, set_sig1_reaction);
-
-  printf("I am beggining loop de loop in the child process of pid: %d\n",
-         getpid());
-
-  for (int i = 0; i < 20; i++) {
+  printf("%d rozpoczyna pętlę\n", getpid());
+  for (int i = 1; i <= 20; i++) {
+    sleep(1);
     printf("%d\n", i);
     if (i == 5 || i == 15) {
-      printf("I must signal myself posthaste\n");
+      printf("Wysyłam sygnał USR1\n");
       raise(SIGUSR1);
     }
     if (i == 10) {
       sigset_t pending_sigs;
+      sigemptyset(&pending_sigs);
       sigpending(&pending_sigs);
       if (sigismember(&pending_sigs, SIGUSR1)) {
-        printf("Good golly! T'would seem my precious signal has been blocked! "
-               "I must inquire my trusty sig_unblock immediately!\n");
+        printf("Odblokowywuję USR1\n");
         sig_unblock();
       }
     }
-    sleep(1);
   }
+  printf("Pętla została wykonana w całości\n");
   return 0;
 }
