@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
     printf("Oczekiwane id reakcji: %d\n", reaction);
     sleep(1);
     sigqueue(fork_result, SIGUSR2, val);
-    sleep(19);
   }
   return 0;
 }

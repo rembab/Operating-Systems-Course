@@ -27,7 +27,7 @@ shared: main child.c sig_lib.so
 	$(CC) $(CFLAGS) child.c -L. -l:sig_lib.a -Wl,-rpath=. -o child
 
 dynamic: main child.c sig_lib.so
-	$(CC) $(CFLAGS) -DDYNAMIC child.c -ldl -o child
+	$(CC) $(CFLAGS) -DDYNAMIC child.c -o child
 
 .PHONY: clean
 clean:
