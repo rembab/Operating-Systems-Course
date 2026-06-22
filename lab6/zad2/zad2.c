@@ -416,8 +416,8 @@ int main(int argc, char **argv) {
   pthread_create(&t_logger, NULL, logger_thread, NULL);
   pthread_create(&t_stats, NULL, stats_thread, NULL);
 
-  for (int i = 0; i < run_seconds * 2 && keep_running; i++) {
-    sleep_ms(500);
+  for (int i = 0; i < run_seconds && keep_running; i++) {
+    sleep_ms(1000);
   }
 
   printf("\nCleanup...\n");

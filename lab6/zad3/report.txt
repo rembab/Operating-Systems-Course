@@ -1,6 +1,0 @@
-Runtime: 12 s
-Left frames: 215
-Right frames: 269
-Stereo pairs: 213
-Robot states: 1053
-Deadline misses: 0
