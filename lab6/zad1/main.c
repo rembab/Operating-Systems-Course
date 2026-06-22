@@ -302,7 +302,6 @@ void *robot_state_thread(void *arg) {
 // 10hz
 // pops from state box saving the newest robot state log
 void *logger_thread(void *arg) {
-  (void)arg;
   RobotState state;
   FILE *log_file = fopen("state_log.txt", "w");
   while (keep_running) {
